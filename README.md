@@ -1,57 +1,96 @@
-# **FedCSIS 2023 Challenge: Cybersecurity Threat Detection in IoT Device Logs**
+# FedCSIS 2023 Challenge: Cybersecurity Threat Detection in the Behavior of IoT Devices
 
-## Overview
+This project was developed for the **FedCSIS 2023 Data Mining Challenge**. The objective is to detect and classify cyberattack events based on system activity logs of IoT devices using machine learning models.
 
-  This repository contains the solution for the FedCSIS 2023 Challenge on cybersecurity threat detection in IoT device logs. The challenge involves developing a model to predict if logs from an IoT system indicate a cyberattack. The solution is submitted as part of the competition and evaluated based on the ROC AUC measure.
+---
 
-## Data
+## Problem Description
 
-  The repository includes the following data files:
-  
-  •	train_data.zip: Contains 15,027 log files in CSV format for training.
-  
-  •	test_data.zip: Contains 5,017 log files in CSV format for testing.
-  
-  •	train_files_containing_attacks.txt: Lists the subset of training files indicating cyberattacks.
-  
-  •	test_files_ordering_for_submissions.txt: Specifies the order of test files for submission.
-  
-  •	test_labels.csv: Contains true labels for the test data.
+The challenge focuses on analyzing system-level logs of IoT devices to determine whether certain events indicate a cyberattack. Each row in the dataset represents an event and is labeled as either part of an attack (`1`) or benign activity (`0`).
 
-## Contents
+---
 
-  •	data_loading_and_diagnosis.ipynb: Jupyter Notebook providing the code for loading the data, performing basic diagnostics, and preparing the data for modeling.
-  
-  •	model_development.ipynb: Jupyter Notebook containing the code for developing and evaluating machine learning models for cybersecurity threat detection.
-  
-  •	submission_preparation.ipynb: Jupyter Notebook guiding the preparation of the final submission file according to the competition requirements.
-  
-  •	report.pdf: Detailed report describing the approach, methodology, results, and conclusions of the solution.
+## Dataset Structure
 
-## Requirements
+The dataset includes **multiple CSV files**. Each file represents system activity logs with features such as:
 
-  •	Python 3.x
-  
-  •	Libraries: pandas, numpy, zipfile
+- `SYSCALL_timestamp`, `SYSCALL_syscall`, `SYSCALL_success`, `SYSCALL_exit`
+- `PROCESS_comm`, `PROCESS_exe`, `PROCESS_PATH`
+- `CUSTOM_openFiles`, `CUSTOM_libs`, `CUSTOM_openSockets`
+- `USER_ACTION_op`, `USER_ACTION_src`, `USER_ACTION_res`
+- `attack` (target label)
 
-## Usage
+---
 
-  1.	Clone the repository to your local machine.
-     
-  2.	Unzip the train_data.zip and test_data.zip files.
-     
-  3.	Open and run the Jupyter Notebooks in the provided order to analyze the data, develop models, and prepare the submission.
-     
-  4.	Submit the final prediction file and the report to the FedCSIS 2023 Challenge platform for evaluation.
+## Preprocessing Steps
 
-## Contributors
+1. **Extract CSV files** from archive  
+2. **Initial exploration**: file count and sample rows  
+3. **Drop single-valued columns**  
+4. **Label attack-containing files**  
+5. **Label Encoding** for categorical features  
+6. **Missing value handling**:
+   - Categorical: fill with `'missing'`
+   - Numerical: fill with median or `-1`
+7. **Merge all CSVs into a single dataset**
+8. **Normalization** (min-max scaling [0, 1])
+9. **Drop remaining columns with NaNs**
 
-  •	Suat Deniz
-  
-  •	Abdulkadir Dağlar
-  
-  •	Berkay Caplık
+---
+
+## Models Used
+
+After preprocessing, the data was split into `X` and `y`, then into train-test sets with a 20% test split.
+
+Four machine learning models were trained and evaluated:
+
+| Model              | Accuracy | F1 Score | Precision | ROC AUC | Recall  |
+|--------------------|----------|----------|-----------|---------|---------|
+| **Decision Tree**  | 99.79%   | 98.10%   | 99.05%    | 98.55%  | 97.15%  |
+| **Random Forest**  | 99.70%   | 97.31%   | 98.45%    | 98.05%  | 96.19%  |
+| **XGBoost**        | 99.52%   | 95.65%   | 98.83%    | 96.30%  | 92.67%  |
+| **Logistic Regr.** | 95.96%   | 49.19%   | 85.08%    | 67.11%  | 34.59%  |
+
+---
+
+## Evaluation Summary
+
+- **Decision Tree** and **Random Forest** outperformed other models across all metrics.
+- **XGBoost** also performed competitively with high precision and recall.
+- **Logistic Regression** lagged behind due to the dataset's non-linear nature.
+
+---
+
+## File Structure
+
+├── Report FedCSIS 2023 Challenge.docx # Detailed report
+
+├── Cybersecurity_Threat_Detection.pptx # Slide presentation
+
+├── Data_Mining_FedCSIS_2023_Challenge.ipynb # Jupyter notebook Python (code)
+
+
+---
+
+## Team Members
+
+- **Suat Deniz** - 2006102002  
+- **Berkay Caplık** - 2206102900  
+- **Abdulkadir Dağlar** - 2006102033  
+
+---
 
 ## License
 
-  This project is licensed under the MIT License.
+This project is licensed under the **MIT License**.
+
+
+---
+
+## Future Work
+
+- Hyperparameter tuning (e.g., GridSearchCV, Optuna)
+- Advanced ensemble methods (Stacking, Voting)
+- Feature engineering with domain knowledge
+- Cross-domain validation
+
